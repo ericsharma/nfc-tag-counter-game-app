@@ -21,13 +21,17 @@ function Game(props) {
       if (tag.ndefMessage && tag.ndefMessage.length > 0) {
         const ndefRecord = tag.ndefMessage[0];
         if (ndefRecord.tnf === Ndef.TNF_WELL_KNOWN) {
-          if (ndefRecord.type.every((b, i) => b === Ndef.RTD_BYTES_URI[i])) {
-            uri = Ndef.uri.decodePayload(ndefRecord.payload);
+          if (ndefRecord.type.every((b, i) => b === Ndef.RTD_BYTES_TEXT[i])) {
+            console.log(
+              'Hit the text conditional meaning the error handling should work',
+            );
+            const uri = Ndef.text.decodePayload(ndefRecord.payload);
 
             console.log(uri);
           }
         }
       }
+
       console.warn(JSON.stringify(tag));
       count--;
 
@@ -65,12 +69,12 @@ function Game(props) {
     <View style={styles.wrapper}>
       <SafeAreaView />
 
-      <Text style={styles.label}>NFC Game</Text>
+      <Text style={styles.label}>Write to and Scan From NFC tags</Text>
       <WriteNdefScreen />
 
       <TouchableOpacity onPress={scanTag}>
         <View style={styles.btn}>
-          <Text style={styles.playLabel}>PLAY!</Text>
+          <Text style={styles.playLabel}>Scan Tag</Text>
         </View>
       </TouchableOpacity>
 
@@ -108,7 +112,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   playLabel: {
-    fontSize: 28,
+    fontSize: 20,
     color: 'black',
     textAlign: 'center',
   },
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 4,
     borderColor: 'white',
-    backgroundColor: 'pink',
+    backgroundColor: 'green',
     alignItems: 'center',
     justifyContent: 'center',
   },

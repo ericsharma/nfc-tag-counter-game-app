@@ -5,25 +5,12 @@ import NfcManager, {Ndef, NfcTech} from 'react-native-nfc-manager';
 import AndroidPrompt from './AndroidPrompt';
 
 function WriteNdefScreen(props) {
-  const [selectedLinkType, setSelectedLinkType] = React.useState('WEB');
+  const [selectedLinkType, setSelectedLinkType] = React.useState('');
   const [value, setValue] = React.useState('');
   const androidPromptRef = React.useRef();
 
   async function writeNdef() {
-    let scheme = null;
-    if (selectedLinkType === 'WEB') {
-      scheme = 'https://';
-    } else if (selectedLinkType === 'TEL') {
-      scheme = 'tel:';
-    } else if (selectedLinkType === 'SMS') {
-      scheme = 'sms:';
-    } else if (selectedLinkType === 'EMAIL') {
-      scheme = 'mailto:';
-    } else {
-      throw new Error('no such type');
-    }
-    const uriRecord = Ndef.uriRecord(`${scheme}${value}`);
-    const bytes = Ndef.encodeMessage([uriRecord]);
+    const bytes = Ndef.encodeMessage([Ndef.textRecord(value)]);
     console.warn(bytes);
 
     try {
@@ -45,9 +32,9 @@ function WriteNdefScreen(props) {
   return (
     <View style={styles.wrapper}>
       <SafeAreaView />
-      <View style={[styles.wrapper, styles.pad]}>
+      <View style={[styles.pad]}>
         <View style={styles.linkType}>
-          {['WEB', 'TEL', 'SMS', 'EMAIL', 'TEXT'].map(linkType => (
+          {['TEXT'].map((linkType) => (
             <Chip
               key={linkType}
               style={styles.chip}
@@ -58,16 +45,19 @@ function WriteNdefScreen(props) {
           ))}
         </View>
         <TextInput
-          label="TARGET"
+          label="Message"
           value={value}
           onChangeText={setValue}
           autoCapitalize={false}
         />
+        <Button style={[styles.bottom, styles.bgLight]} onPress={writeNdef}>
+          WRITE
+        </Button>
       </View>
 
-      <View style={[styles.bottom, styles.bgLight]}>
+      {/* <View style={[styles.bottom, styles.bgLight]}>
         <Button onPress={writeNdef}>WRITE</Button>
-      </View>
+      </View> */}
       <SafeAreaView style={styles.bgLight} />
       <AndroidPrompt
         ref={androidPromptRef}
@@ -96,6 +86,7 @@ const styles = StyleSheet.create({
   },
   bottom: {
     padding: 10,
+    marginTop: 10,
     alignItems: 'center',
   },
   bgLight: {
@@ -104,4 +95,3 @@ const styles = StyleSheet.create({
 });
 
 export default WriteNdefScreen;
-
