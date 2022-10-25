@@ -7,9 +7,9 @@ import {
   Platform,
   SafeAreaView,
 } from 'react-native';
-import NfcManager, {NfcEvents} from 'react-native-nfc-manager';
+import NfcManager, {NfcEvents, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from './AndroidPrompt';
-
+import WriteNdefScreen from './WriteNdefScreen';
 function Game(props) {
   const [start, setStart] = React.useState(null);
   const [duration, setDuration] = React.useState(0);
@@ -18,6 +18,16 @@ function Game(props) {
   React.useEffect(() => {
     let count = 5;
     NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
+      if (tag.ndefMessage && tag.ndefMessage.length > 0) {
+        const ndefRecord = tag.ndefMessage[0];
+        if (ndefRecord.tnf === Ndef.TNF_WELL_KNOWN) {
+          if (ndefRecord.type.every((b, i) => b === Ndef.RTD_BYTES_URI[i])) {
+            uri = Ndef.uri.decodePayload(ndefRecord.payload);
+
+            console.log(uri);
+          }
+        }
+      }
       console.warn(JSON.stringify(tag));
       count--;
 
@@ -56,12 +66,7 @@ function Game(props) {
       <SafeAreaView />
 
       <Text style={styles.label}>NFC Game</Text>
-
-      <View style={styles.content}>
-        {(duration > 0 && (
-          <Text style={styles.minLabel}>{duration} ms</Text>
-        )) || <Text style={styles.minLabel}>Let's go!</Text>}
-      </View>
+      <WriteNdefScreen />
 
       <TouchableOpacity onPress={scanTag}>
         <View style={styles.btn}>
